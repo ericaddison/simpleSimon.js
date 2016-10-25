@@ -81,3 +81,4 @@
   ctx.arc(centerX, centerY, outerRadius, th2, th1, !anticlockwise);
   ctx.closePath();
 }
+

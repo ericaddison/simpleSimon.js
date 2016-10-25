@@ -11,11 +11,10 @@
 <script>
 
 // create a board
- var board = makeBoard();
+ var board = makeBoard({width: 500, height: 500});
  var canvas = makeBoardCanvas(board,document.getElementById("gameBoardDiv"));
-
-strokeSector(canvas.getContext("2d"), 100, 100, 20, 50, 0, 90);
-fillSector(canvas.getContext("2d"), 100, 100, 20, 50, 95, 180);
+ var ctx = canvas.getContext("2d");
+ drawBoard(ctx, board);
 
  document.writeln("<br><br>board? " + document.getElementById(board.getCanvasID()).width);
  
