@@ -12,25 +12,8 @@
  var board = makeBoard();
  var canvas = makeBoardCanvas(board,document.getElementById("gameBoardDiv"));
 
- var strokeSector = function(ctx, originX, originY, 
-          innerRadius, outerRadius, 
-          startAngle, endAngle, 
-          anticlockwise) {  
-
-  var th1 = startAngle*Math.PI/180;
-  var th2 = endAngle*Math.PI/180;
-  var startOfOuterArcX = outerRadius*Math.cos(th2) + originX;
-  var startOfOuterArcY = outerRadius*Math.sin(th2) + originY;
-
-  ctx.beginPath();
-  ctx.arc(originX, originY, innerRadius, th1, th2, anticlockwise);
-  ctx.lineTo(startOfOuterArcX, startOfOuterArcY);
-  ctx.arc(originX, originY, outerRadius, th2, th1, !anticlockwise);
-  ctx.closePath();
-  ctx.stroke();
- }
- 
-strokeSector(canvas.getContext("2d"), 100, 100, 20, 50, 0, 90, true);
+strokeSector(canvas.getContext("2d"), 100, 100, 20, 50, 0, 90);
+fillSector(canvas.getContext("2d"), 100, 100, 20, 50, 95, 180);
 
  document.writeln("<br><br>board? " + document.getElementById(board.getCanvasID()).width);
  
