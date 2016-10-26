@@ -15,7 +15,6 @@
 
   var width = spec.width || 300;
   var height = spec.height || 300;
-  var activeQuadrant = 0;
   return {
     getCanvasID: getCanvasID,
     width: width,
@@ -69,18 +68,18 @@
   // board values
   var boardSize = Math.min(board.width, board.height);
   var bigRadius = 0.9*boardSize/2;
-  var innerQuadRadius = 0.25*boardSize/2;
-  var outerQuadRadius = 0.7*boardSize/2;
+  var innerButtonRadius = 0.25*boardSize/2;
+  var outerButtonRadius = 0.7*boardSize/2;
   var centerX = board.width/2;
   var centerY = board.height/2;
   var sectorSpacing = bigRadius*0.05;
 
   var onColors = ["#FF0000", "#00FF00", "#3344FF", "#FFA500"];
   var offColors = ["#BB0000", "#00BB00", "#3040BB", "#BB8500"];
-  var quadInfo = {centerX: centerX,
+  var buttonInfo = {centerX: centerX,
                     centerY: centerY,
-                    innerRadius: innerQuadRadius,
-                    outerRadius: outerQuadRadius,
+                    innerRadius: innerButtonRadius,
+                    outerRadius: outerButtonRadius,
                     sectorSpacing: sectorSpacing};
 
   // draw center black circle
@@ -91,17 +90,17 @@
   ctx.arc(centerX, centerY, bigRadius, 0, 2*Math.PI);
   ctx.fill();
 
-  // draw the quadrants
+  // draw the Buttons
 
-  for( iQuad=0; iQuad<4; iQuad++ ){
-    quadInfo.quadrant = iQuad;
-    computeQuadrantPath(ctx, quadInfo);
+  for( iButton=0; iButton<4; iButton++ ){
+    buttonInfo.buttonNumber = iButton;
+    computeButtonPath(ctx, buttonInfo);
 
-    quadInfo.on = ( e && mouseDown && ctx.isPointInPath(mouseX, mouseY) );
-    quadInfo.color = (quadInfo.on) ? onColors[iQuad] : offColors[iQuad];
+    buttonInfo.on = ( e && mouseDown && ctx.isPointInPath(mouseX, mouseY) );
+    buttonInfo.color = (buttonInfo.on) ? onColors[iButton] : offColors[iButton];
 
-    ctx.fillStyle = (quadInfo.on) ? getOnQuadrantGradient(ctx, quadInfo) 
-                                  : getOffQuadrantGradient(ctx, quadInfo);
+    ctx.fillStyle = (buttonInfo.on) ? getOnButtonGradient(ctx, buttonInfo) 
+                                  : getOffButtonGradient(ctx, buttonInfo);
     ctx.fill();
 
   }
@@ -112,26 +111,26 @@
 
 /******************************************* 
 *
-* Get the gradient needed for drawing an ON quadrant (pressed button)
+* Get the gradient needed for drawing an ON button (pressed button)
 *
 *******************************************/
- var getOnQuadrantGradient = function(ctx, quadInfo) {
-    var halfRadius = (quadInfo.innerRadius + quadInfo.outerRadius)/2.5;
-    var xSign = Math.pow(-1, quadInfo.quadrant%3>0);
-    var ySign = Math.pow(-1, quadInfo.quadrant>=2 );
+ var getOnButtonGradient = function(ctx, buttonInfo) {
+    var halfRadius = (buttonInfo.innerRadius + buttonInfo.outerRadius)/2.5;
+    var xSign = Math.pow(-1, buttonInfo.buttonNumber%3>0);
+    var ySign = Math.pow(-1, buttonInfo.buttonNumber>=2 );
 
-    var gradCenterX = quadInfo.centerX + halfRadius*xSign;
-    var gradCenterY = quadInfo.centerY + halfRadius*ySign;
+    var gradCenterX = buttonInfo.centerX + halfRadius*xSign;
+    var gradCenterY = buttonInfo.centerY + halfRadius*ySign;
 
     var gradInnerR = 0;
-    var gradOuterR = quadInfo.outerRadius * 0.7;
+    var gradOuterR = buttonInfo.outerRadius * 0.7;
 
     var gradient = ctx.createRadialGradient(gradCenterX,gradCenterY,
                                             gradInnerR,
                                             gradCenterX,gradCenterY,
                                             gradOuterR);
 
-    gradient.addColorStop(1,quadInfo.color);
+    gradient.addColorStop(1,buttonInfo.color);
     gradient.addColorStop(0,"white");
 
     return gradient;
@@ -141,22 +140,22 @@
 
 /******************************************* 
 *
-* Get the gradient needed for drawing an OFF quadrant (unpressed button)
+* Get the gradient needed for drawing an OFF button (unpressed button)
 *
 *******************************************/
- var getOffQuadrantGradient = function(ctx, quadInfo) {
-    var gradCenterX = quadInfo.centerX;
-    var gradCenterY = quadInfo.centerY;
+ var getOffButtonGradient = function(ctx, buttonInfo) {
+    var gradCenterX = buttonInfo.centerX;
+    var gradCenterY = buttonInfo.centerY;
 
-    var gradInnerR = quadInfo.innerRadius;
-    var gradOuterR = 1.8*quadInfo.outerRadius;
+    var gradInnerR = buttonInfo.innerRadius;
+    var gradOuterR = 1.8*buttonInfo.outerRadius;
 
     var gradient = ctx.createRadialGradient(gradCenterX,gradCenterY,
                                             gradInnerR,
                                             gradCenterX,gradCenterY,
                                             gradOuterR);
 
-    gradient.addColorStop(0,quadInfo.color);
+    gradient.addColorStop(0,buttonInfo.color);
     gradient.addColorStop(1,"white");
 
     return gradient;
@@ -168,16 +167,16 @@
 * Get the path for a button, but don't fill
 *
 *******************************************/
- var computeQuadrantPath = function(ctx, quadInfo) {
-    var xSign = Math.pow(-1, quadInfo.quadrant%3>0);
-    var ySign = Math.pow(-1, quadInfo.quadrant>=2 );
-    var startAngle = 90*quadInfo.quadrant;
+ var computeButtonPath = function(ctx, buttonInfo) {
+    var xSign = Math.pow(-1, buttonInfo.buttonNumber%3>0);
+    var ySign = Math.pow(-1, buttonInfo.buttonNumber>=2 );
+    var startAngle = 90*buttonInfo.buttonNumber;
     var endAngle = startAngle+90;
 
     makeSectorPath(ctx, 
-      quadInfo.centerX+quadInfo.sectorSpacing*xSign, 
-      quadInfo.centerY+quadInfo.sectorSpacing*ySign, 
-      quadInfo.innerRadius, quadInfo.outerRadius,
+      buttonInfo.centerX+buttonInfo.sectorSpacing*xSign, 
+      buttonInfo.centerY+buttonInfo.sectorSpacing*ySign, 
+      buttonInfo.innerRadius, buttonInfo.outerRadius,
       startAngle, endAngle);
  }
 
