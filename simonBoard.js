@@ -81,25 +81,105 @@
   var centerY = board.height/2;
   var sectorSpacing = bigRadius*0.05;
 
+  var onColors = ["#FF0000", "#00FF00", "#3344FF", "#FFA500"];
+  var offColors = ["#BB0000", "#00BB00", "#3040BB", "#BB8500"];
+  var quadInfo = {centerX: centerX,
+                    centerY: centerY,
+                    innerRadius: innerQuadRadius,
+                    outerRadius: outerQuadRadius,
+                    sectorSpacing: sectorSpacing};
+
   // draw center black circle
-  ctx.fillStyle="#303030";
+  var gradient = ctx.createRadialGradient(centerX,centerY,0,centerX,centerY,bigRadius);
+  gradient.addColorStop(0.95,"#303030");
+  gradient.addColorStop(1,"#DDDDDD");
+  ctx.fillStyle = gradient;
   ctx.arc(centerX, centerY, bigRadius, 0, 2*Math.PI);
   ctx.fill();
 
   // draw the quadrants
-  var colors = ["#FF0000", "#00FF00", "#3344FF", "#FFA500"];
+
   for( iQuad=0; iQuad<4; iQuad++ ){
-    var gradient = ctx.createRadialGradient(centerX,centerY,innerQuadRadius,centerX,centerY,1.4*outerQuadRadius);
-    gradient.addColorStop(0,colors[iQuad]);
-    gradient.addColorStop(1,"white");
-    ctx.fillStyle = gradient;
-    fillSector(ctx, 
-      centerX+sectorSpacing*(Math.pow(-1, iQuad%3>0 )), 
-      centerY+sectorSpacing*(Math.pow(-1, iQuad>=2 )), 
-      innerQuadRadius, outerQuadRadius,
-      0+90*iQuad, 90+90*iQuad);
+    quadInfo.on = (iQuad==2);
+    quadInfo.quadrant = iQuad;
+    quadInfo.color = (quadInfo.on) ? onColors[iQuad] : offColors[iQuad];
+    quadInfo.startAngle = 90*iQuad;
+    quadInfo.endAngle = 90*(iQuad+1);
+    drawQuadrant(quadInfo);
   }
 
 
+ }
+
+
+/******************************************* 
+*
+* Draw one quadrant of the board (one colored button)
+*
+*******************************************/
+ var drawQuadrant = function(quadInfo) {
+    var xSign = Math.pow(-1, quadInfo.quadrant%3>0);
+    var ySign = Math.pow(-1, quadInfo.quadrant>=2 );
+
+    ctx.fillStyle = (quadInfo.on) ? getOnQuadrantGradient(quadInfo) 
+                                  : getOffQuadrantGradient(quadInfo);
+
+    fillSector(ctx, 
+      quadInfo.centerX+quadInfo.sectorSpacing*xSign, 
+      quadInfo.centerY+quadInfo.sectorSpacing*ySign, 
+      quadInfo.innerRadius, quadInfo.outerRadius,
+      0+90*quadInfo.quadrant, 90+90*quadInfo.quadrant);
+ }
+
+
+/******************************************* 
+*
+* Get the gradient needed for drawing an ON quadrant (pressed button)
+*
+*******************************************/
+ var getOnQuadrantGradient = function(quadInfo) {
+    var halfRadius = (quadInfo.innerRadius + quadInfo.outerRadius)/2.5;
+    var xSign = Math.pow(-1, quadInfo.quadrant%3>0);
+    var ySign = Math.pow(-1, quadInfo.quadrant>=2 );
+
+    var gradCenterX = quadInfo.centerX + halfRadius*xSign;
+    var gradCenterY = quadInfo.centerY + halfRadius*ySign;
+
+    var gradInnerR = quadInfo.innerRadius * 0.1;
+    var gradOuterR = quadInfo.outerRadius;
+
+    var gradient = ctx.createRadialGradient(gradCenterX,gradCenterY,
+                                            gradInnerR,
+                                            gradCenterX,gradCenterY,
+                                            gradOuterR);
+
+    gradient.addColorStop(1,quadInfo.color);
+    gradient.addColorStop(0,"white");
+
+    return gradient;
+ }
+
+
+/******************************************* 
+*
+* Get the gradient needed for drawing an OFF quadrant (unpressed button)
+*
+*******************************************/
+ var getOffQuadrantGradient = function(quadInfo) {
+    var gradCenterX = quadInfo.centerX;
+    var gradCenterY = quadInfo.centerY;
+
+    var gradInnerR = quadInfo.innerRadius;
+    var gradOuterR = 1.8*quadInfo.outerRadius;
+
+    var gradient = ctx.createRadialGradient(gradCenterX,gradCenterY,
+                                            gradInnerR,
+                                            gradCenterX,gradCenterY,
+                                            gradOuterR);
+
+    gradient.addColorStop(0,quadInfo.color);
+    gradient.addColorStop(1,"white");
+
+    return gradient;
  }
 
