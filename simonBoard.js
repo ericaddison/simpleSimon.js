@@ -89,10 +89,13 @@
   // draw the quadrants
   var colors = ["#FF0000", "#00FF00", "#3344FF", "#FFA500"];
   for( iQuad=0; iQuad<4; iQuad++ ){
-    ctx.fillStyle = colors[iQuad];
+    var gradient = ctx.createRadialGradient(centerX,centerY,innerQuadRadius,centerX,centerY,1.4*outerQuadRadius);
+    gradient.addColorStop(0,colors[iQuad]);
+    gradient.addColorStop(1,"white");
+    ctx.fillStyle = gradient;
     fillSector(ctx, 
-      centerX+sectorSpacing*(Math.pow(-1,iQuad==1 || iQuad==2)), 
-      centerY+sectorSpacing*(Math.pow(-1,iQuad>=2)), 
+      centerX+sectorSpacing*(Math.pow(-1, iQuad%3>0 )), 
+      centerY+sectorSpacing*(Math.pow(-1, iQuad>=2 )), 
       innerQuadRadius, outerQuadRadius,
       0+90*iQuad, 90+90*iQuad);
   }
