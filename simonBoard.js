@@ -11,37 +11,22 @@
   
   var canvasID = spec.canvasID || "boardCanvas";
   var getCanvasID = function() { return canvasID; };
- 
-  var activeQuadrant = 0;
-  var getActiveQuadrant = function() {return activeQuadrant; };
-  var setActiveQuadrant = function(quad){
-    if(quad == 1){
-      activeQuadrant = 1;
-    } else if(quad == 2){
-      activeQuadrant = 2;
-    } else if(quad == 3){
-      activeQuadrant = 3;
-    } else if(quad == 4){
-	  activeQuadrant = 4;
-    } else {
-	  activeQuadrant = 0;
-	}
-  }
+  var onClick = function(event, mouseDown) { drawBoard(this, event, mouseDown); };
 
   var width = spec.width || 300;
   var height = spec.height || 300;
   var activeQuadrant = 0;
   return {
     getCanvasID: getCanvasID,
-    getActiveQuadrant: getActiveQuadrant,
-    setActiveQuadrant: setActiveQuadrant,
     width: width,
-    height: height
+    height: height,
+    onClick: onClick
   };
  }
 
 // default board
  var defaultBoard = makeBoard();
+
 
 
 /******************************************* 
@@ -57,10 +42,11 @@
   newCanvas.width = board.width || defaultBoard.width;
   newCanvas.height = board.height || defaultBoard.height;
   newCanvas.style = "border:1px solid #000000;";
+  newCanvas.onmousedown = function(event){ board.onClick(event, true); };
+  newCanvas.onmouseup = function(event){ board.onClick(event, false); };
   parentElement.appendChild(newCanvas);
   return newCanvas;
  }
-
 
 
 
@@ -69,8 +55,16 @@
 * Draw the game board
 *
 *******************************************/
- var drawBoard = function(ctx, board) {
+ var drawBoard = function(board, e, mouseDown) {
   board = board || defaultBoard;
+  var canvas = document.getElementById(board.getCanvasID());
+  var ctx = canvas.getContext("2d");
+
+  if ( e && mouseDown ) {
+    var rect = canvas.getBoundingClientRect();
+    var mouseX = e.clientX - rect.left;
+    var mouseY = e.clientY - rect.top;
+  }
 
   // board values
   var boardSize = Math.min(board.width, board.height);
@@ -100,12 +94,16 @@
   // draw the quadrants
 
   for( iQuad=0; iQuad<4; iQuad++ ){
-    quadInfo.on = (iQuad==2);
     quadInfo.quadrant = iQuad;
+    computeQuadrantPath(ctx, quadInfo);
+
+    quadInfo.on = ( e && mouseDown && ctx.isPointInPath(mouseX, mouseY) );
     quadInfo.color = (quadInfo.on) ? onColors[iQuad] : offColors[iQuad];
-    quadInfo.startAngle = 90*iQuad;
-    quadInfo.endAngle = 90*(iQuad+1);
-    drawQuadrant(quadInfo);
+
+    ctx.fillStyle = (quadInfo.on) ? getOnQuadrantGradient(ctx, quadInfo) 
+                                  : getOffQuadrantGradient(ctx, quadInfo);
+    ctx.fill();
+
   }
 
 
@@ -114,30 +112,10 @@
 
 /******************************************* 
 *
-* Draw one quadrant of the board (one colored button)
-*
-*******************************************/
- var drawQuadrant = function(quadInfo) {
-    var xSign = Math.pow(-1, quadInfo.quadrant%3>0);
-    var ySign = Math.pow(-1, quadInfo.quadrant>=2 );
-
-    ctx.fillStyle = (quadInfo.on) ? getOnQuadrantGradient(quadInfo) 
-                                  : getOffQuadrantGradient(quadInfo);
-
-    fillSector(ctx, 
-      quadInfo.centerX+quadInfo.sectorSpacing*xSign, 
-      quadInfo.centerY+quadInfo.sectorSpacing*ySign, 
-      quadInfo.innerRadius, quadInfo.outerRadius,
-      0+90*quadInfo.quadrant, 90+90*quadInfo.quadrant);
- }
-
-
-/******************************************* 
-*
 * Get the gradient needed for drawing an ON quadrant (pressed button)
 *
 *******************************************/
- var getOnQuadrantGradient = function(quadInfo) {
+ var getOnQuadrantGradient = function(ctx, quadInfo) {
     var halfRadius = (quadInfo.innerRadius + quadInfo.outerRadius)/2.5;
     var xSign = Math.pow(-1, quadInfo.quadrant%3>0);
     var ySign = Math.pow(-1, quadInfo.quadrant>=2 );
@@ -145,8 +123,8 @@
     var gradCenterX = quadInfo.centerX + halfRadius*xSign;
     var gradCenterY = quadInfo.centerY + halfRadius*ySign;
 
-    var gradInnerR = quadInfo.innerRadius * 0.1;
-    var gradOuterR = quadInfo.outerRadius;
+    var gradInnerR = 0;
+    var gradOuterR = quadInfo.outerRadius * 0.7;
 
     var gradient = ctx.createRadialGradient(gradCenterX,gradCenterY,
                                             gradInnerR,
@@ -160,12 +138,13 @@
  }
 
 
+
 /******************************************* 
 *
 * Get the gradient needed for drawing an OFF quadrant (unpressed button)
 *
 *******************************************/
- var getOffQuadrantGradient = function(quadInfo) {
+ var getOffQuadrantGradient = function(ctx, quadInfo) {
     var gradCenterX = quadInfo.centerX;
     var gradCenterY = quadInfo.centerY;
 
@@ -181,5 +160,24 @@
     gradient.addColorStop(1,"white");
 
     return gradient;
+ }
+
+
+/******************************************* 
+*
+* Get the path for a button, but don't fill
+*
+*******************************************/
+ var computeQuadrantPath = function(ctx, quadInfo) {
+    var xSign = Math.pow(-1, quadInfo.quadrant%3>0);
+    var ySign = Math.pow(-1, quadInfo.quadrant>=2 );
+    var startAngle = 90*quadInfo.quadrant;
+    var endAngle = startAngle+90;
+
+    makeSectorPath(ctx, 
+      quadInfo.centerX+quadInfo.sectorSpacing*xSign, 
+      quadInfo.centerY+quadInfo.sectorSpacing*ySign, 
+      quadInfo.innerRadius, quadInfo.outerRadius,
+      startAngle, endAngle);
  }
 
