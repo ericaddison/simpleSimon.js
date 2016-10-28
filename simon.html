@@ -12,8 +12,20 @@
 
 // create a board
  var board = makeBoard({width: 500, height: 500});
- var canvas = makeBoardCanvas(board,document.getElementById("gameBoardDiv"));
- drawBoard(board);
+
+// create a canvas
+ var parentElement = document.getElementById("gameBoardDiv");
+ var newCanvas = document.createElement("canvas"); 
+ newCanvas.id = board.canvasID;
+ newCanvas.width = board.width;
+ newCanvas.height = board.height;
+ newCanvas.style = "border:1px solid #000000;";
+ newCanvas.onmousedown = function(event){ board.onClick(event, true); };
+ newCanvas.onmouseup = function(event){ board.onClick(event, false); };
+ parentElement.appendChild(newCanvas);
+
+// draw the board
+ board.draw();
 </script>
 
 
