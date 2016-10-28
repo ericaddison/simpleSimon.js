@@ -1,4 +1,4 @@
-// depends on circleSector.js
+// depends on annulus.js
 
 /******************************************* 
 * 
@@ -171,7 +171,7 @@ var addFieldsToSimonBoardPrototype = function() {
     var startAngle = 90*buttonInfo.buttonNumber;
     var endAngle = startAngle+90;
 
-    ctx.makeSectorPath( 
+    ctx.annulus( 
       buttonInfo.centerX+buttonInfo.sectorSpacing*xSign, 
       buttonInfo.centerY+buttonInfo.sectorSpacing*ySign, 
       buttonInfo.innerRadius, buttonInfo.outerRadius,
