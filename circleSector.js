@@ -1,3 +1,6 @@
+
+var augmentCanvasRenderingContext2D = function(){
+
 /******************************************* 
 *
 * Draw a sector of a circle on a canvas graphics context
@@ -12,17 +15,17 @@
 *		anticlockwise - boolean, arc draw direction is CW (default, false) or CCW (true)
 *
 *******************************************/
- var strokeSector = function(ctx, centerX, centerY, 
-          innerRadius, outerRadius, 
-          startAngle, endAngle, 
-          anticlockwise) {  
+	 var strokeSector = function(centerX, centerY, 
+		      innerRadius, outerRadius, 
+		      startAngle, endAngle, 
+		      anticlockwise) {  
 
-  makeSectorPath(ctx, centerX, centerY, 
-          innerRadius, outerRadius, 
-          startAngle, endAngle, 
-          anticlockwise);
-  ctx.stroke();
- }
+	  makeSectorPath(centerX, centerY, 
+		      innerRadius, outerRadius, 
+		      startAngle, endAngle, 
+		      anticlockwise);
+	  this.stroke();
+	 }
 
 
 /******************************************* 
@@ -39,17 +42,17 @@
 *		anticlockwise - boolean, arc draw direction is CW (default, false) or CCW (true)
 *
 *******************************************/
- var fillSector = function(ctx, centerX, centerY, 
-          innerRadius, outerRadius, 
-          startAngle, endAngle, 
-          anticlockwise) {  
+	 var fillSector = function(centerX, centerY, 
+		      innerRadius, outerRadius, 
+		      startAngle, endAngle, 
+		      anticlockwise) {  
 
-  makeSectorPath(ctx, centerX, centerY, 
-          innerRadius, outerRadius, 
-          startAngle, endAngle, 
-          anticlockwise);
-  ctx.fill();
- }
+	  makeSectorPath(centerX, centerY, 
+		      innerRadius, outerRadius, 
+		      startAngle, endAngle, 
+		      anticlockwise);
+	  this.fill();
+	 }
 
 
 /******************************************* 
@@ -66,19 +69,25 @@
 *		anticlockwise - boolean, arc draw direction is CW (default, false) or CCW (true)
 *
 *******************************************/
- var makeSectorPath = function(ctx, centerX, centerY, 
-          innerRadius, outerRadius, 
-          startAngle, endAngle, 
-          anticlockwise) {
-  var th1 = startAngle*Math.PI/180;
-  var th2 = endAngle*Math.PI/180;
-  var startOfOuterArcX = outerRadius*Math.cos(th2) + centerX;
-  var startOfOuterArcY = outerRadius*Math.sin(th2) + centerY;
+	 var makeSectorPath = function(centerX, centerY, 
+		      innerRadius, outerRadius, 
+		      startAngle, endAngle, 
+		      anticlockwise) {
+	  var th1 = startAngle*Math.PI/180;
+	  var th2 = endAngle*Math.PI/180;
+	  var startOfOuterArcX = outerRadius*Math.cos(th2) + centerX;
+	  var startOfOuterArcY = outerRadius*Math.sin(th2) + centerY;
 
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, innerRadius, th1, th2, anticlockwise);
-  ctx.lineTo(startOfOuterArcX, startOfOuterArcY);
-  ctx.arc(centerX, centerY, outerRadius, th2, th1, !anticlockwise);
-  ctx.closePath();
-}
+	  this.beginPath();
+	  this.arc(centerX, centerY, innerRadius, th1, th2, anticlockwise);
+	  this.lineTo(startOfOuterArcX, startOfOuterArcY);
+	  this.arc(centerX, centerY, outerRadius, th2, th1, !anticlockwise);
+	  this.closePath();
+	}
 
+
+CanvasRenderingContext2D.prototype.strokeSector = strokeSector;
+CanvasRenderingContext2D.prototype.fillSector = fillSector;
+CanvasRenderingContext2D.prototype.makeSectorPath = makeSectorPath;
+
+}();

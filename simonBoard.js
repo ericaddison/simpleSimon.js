@@ -5,23 +5,35 @@
 * board object-making function
 *
 *******************************************/
-var makeBoard = function (spec){
+var SimonBoard = function (spec){
   spec = spec || {};
   
   // DOM canvas ID fields
-  var canvasID = spec.canvasID || "boardCanvas";
-
-  var onClick = function(event, mouseDown) { draw({event: event, mouseDown: mouseDown}); };
+  this.canvasID = spec.canvasID || "boardCanvas";
 
   // geometry values
-  var width = spec.width || 300;
-  var height = spec.height || 300;
-  var centerX = spec.centerX || width/2;
-  var centerY = spec.centerY || height/2;
+  this.width = spec.width || 300;
+  this.height = spec.height || 300;
+  this.centerX = spec.centerX || this.width/2;
+  this.centerY = spec.centerY || this.height/2;
+
+}
+
+
+
+
+/******************************************* 
+* 
+* An immediately invoked function to add methods
+* and data to the SimonBoard object prototype.
+*
+*******************************************/
+var addFieldsToSimonBoardPrototype = function() {
 
   // colors for drawing the board
   var onColors = ["#FF0000", "#00FF00", "#3344FF", "#FFA500"];
   var offColors = ["#BB0000", "#00BB00", "#3040BB", "#BB8500"];
+
 
 
 /******************************************* 
@@ -39,13 +51,13 @@ var makeBoard = function (spec){
 *******************************************/
   var draw = function(drawSpec) {
    drawSpec = drawSpec || {};
-   var canvas = drawSpec.canvas || document.getElementById(canvasID);
+   var canvas = drawSpec.canvas || document.getElementById(this.canvasID);
    var e = drawSpec.event;
    var mouseDown = drawSpec.mouseDown;
 
    // update center coordinates
-   centerX = drawSpec.centerX || centerX;
-   centerY = drawSpec.centerY || centerY;
+   this.centerX = drawSpec.centerX || this.centerX;
+   this.centerY = drawSpec.centerY || this.centerY;
 
    var ctx = canvas.getContext("2d");
    if ( e && mouseDown ) {
@@ -55,25 +67,27 @@ var makeBoard = function (spec){
    }
 
    // board values
-   var boardSize = Math.min(width, height);
+   var boardSize = Math.min(this.width, this.height);
    var bigRadius = 0.9*boardSize/2;
    var innerButtonRadius = 0.25*boardSize/2;
    var outerButtonRadius = 0.7*boardSize/2;
 
    var sectorSpacing = bigRadius*0.05;
 
-   var buttonInfo = {centerX: centerX,
-                    centerY: centerY,
-                    innerRadius: innerButtonRadius,
+   var buttonInfo = {
+					centerX: this.centerX,
+					centerY: this.centerY,
+					innerRadius: innerButtonRadius,
                     outerRadius: outerButtonRadius,
                     sectorSpacing: sectorSpacing};
 
    // draw center black circle
-   var gradient = ctx.createRadialGradient(centerX,centerY,0,centerX,centerY,bigRadius);
+   var gradient = ctx.createRadialGradient(this.centerX,this.centerY,0,
+											this.centerX,this.centerY,bigRadius);
    gradient.addColorStop(0.95,"#303030");
    gradient.addColorStop(1,"#DDDDDD");
    ctx.fillStyle = gradient;
-   ctx.arc(centerX, centerY, bigRadius, 0, 2*Math.PI);
+   ctx.arc(this.centerX, this.centerY, bigRadius, 0, 2*Math.PI);
    ctx.fill();
 
    // draw the Buttons
@@ -83,6 +97,7 @@ var makeBoard = function (spec){
      computeButtonPath(ctx, buttonInfo);
 
      buttonInfo.on = ( e && mouseDown && ctx.isPointInPath(mouseX, mouseY) );
+
      buttonInfo.color = (buttonInfo.on) ? onColors[iButton] : offColors[iButton];
 
      ctx.fillStyle = (buttonInfo.on) ? getOnButtonGradient(ctx, buttonInfo) 
@@ -93,7 +108,6 @@ var makeBoard = function (spec){
 
 
   }
-
 
 
 
@@ -113,10 +127,8 @@ var makeBoard = function (spec){
     var gradInnerR = 0;
     var gradOuterR = buttonInfo.outerRadius * 0.7;
 
-    var gradient = ctx.createRadialGradient(gradCenterX,gradCenterY,
-                                            gradInnerR,
-                                            gradCenterX,gradCenterY,
-                                            gradOuterR);
+    var gradient = ctx.createRadialGradient(gradCenterX, gradCenterY, gradInnerR,
+                                            gradCenterX, gradCenterY, gradOuterR);
 
     gradient.addColorStop(1,buttonInfo.color);
     gradient.addColorStop(0,"white");
@@ -132,16 +144,14 @@ var makeBoard = function (spec){
 *
 *******************************************/
   var getOffButtonGradient = function(ctx, buttonInfo) {
-    var gradCenterX = buttonInfo.centerX;
-    var gradCenterY = buttonInfo.centerY;
-
     var gradInnerR = buttonInfo.innerRadius;
     var gradOuterR = 1.8*buttonInfo.outerRadius;
 
-    var gradient = ctx.createRadialGradient(gradCenterX,gradCenterY,
-                                            gradInnerR,
-                                            gradCenterX,gradCenterY,
-                                            gradOuterR);
+    var gradCenterX = buttonInfo.centerX;
+    var gradCenterY = buttonInfo.centerY;
+
+    var gradient = ctx.createRadialGradient(gradCenterX, gradCenterY, gradInnerR,
+                                            gradCenterX, gradCenterY, gradOuterR);
 
     gradient.addColorStop(0,buttonInfo.color);
     gradient.addColorStop(1,"white");
@@ -161,7 +171,7 @@ var makeBoard = function (spec){
     var startAngle = 90*buttonInfo.buttonNumber;
     var endAngle = startAngle+90;
 
-    makeSectorPath(ctx, 
+    ctx.makeSectorPath( 
       buttonInfo.centerX+buttonInfo.sectorSpacing*xSign, 
       buttonInfo.centerY+buttonInfo.sectorSpacing*ySign, 
       buttonInfo.innerRadius, buttonInfo.outerRadius,
@@ -169,14 +179,11 @@ var makeBoard = function (spec){
   }
 
 
+  var onClick = function(event, mouseDown) { this.draw({event: event, mouseDown: mouseDown}); };
 
-// Return a new anonymous object with all public fields/methods information
- return {
-   canvasID: canvasID,
-   draw: draw,
-   width: width,
-   height: height,
-   onClick: onClick
- };
-}
 
+  SimonBoard.prototype.draw = draw;
+  SimonBoard.prototype.onClick = onClick;
+  SimonBoard.prototype.onColors = onColors;
+  SimonBoard.prototype.offColors = offColors;
+}();
