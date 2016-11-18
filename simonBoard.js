@@ -19,9 +19,6 @@ var SimonBoard = function (spec){
 
 };
 
-
-
-
 /******************************************* 
 * 
 * An immediately invoked function to add methods
@@ -74,16 +71,15 @@ var SimonBoard = function (spec){
 
    var sectorSpacing = bigRadius*0.05;
 
-   var buttonInfo = {
-					centerX: this.centerX,
-					centerY: this.centerY,
-					innerRadius: innerButtonRadius,
-                    outerRadius: outerButtonRadius,
-                    sectorSpacing: sectorSpacing};
+   var buttonInfo = { centerX: this.centerX,
+                      centerY: this.centerY,
+                      innerRadius: innerButtonRadius,
+                      outerRadius: outerButtonRadius,
+                      sectorSpacing: sectorSpacing};
 
    // draw center black circle
    var gradient = ctx.createRadialGradient(this.centerX,this.centerY,0,
-											this.centerX,this.centerY,bigRadius);
+                                           this.centerX,this.centerY,bigRadius);
    gradient.addColorStop(0.95,"#303030");
    gradient.addColorStop(1,"#DDDDDD");
    ctx.fillStyle = gradient;
@@ -101,12 +97,9 @@ var SimonBoard = function (spec){
      buttonInfo.color = (buttonInfo.on) ? onColors[iButton] : offColors[iButton];
 
      ctx.fillStyle = (buttonInfo.on) ? getOnButtonGradient(ctx, buttonInfo) 
-                                  	 : getOffButtonGradient(ctx, buttonInfo);
+                                     : getOffButtonGradient(ctx, buttonInfo);
      ctx.fill();
-
    }
-
-
   }
 
 
@@ -179,8 +172,9 @@ var SimonBoard = function (spec){
   }
 
 
-  var onClick = function(event, mouseDown) { this.draw({event: event, mouseDown: mouseDown}); };
-
+  var onClick = function(event, mouseDown) { 
+	  this.draw({event: event, mouseDown: mouseDown});
+  };
 
   SimonBoard.prototype.draw = draw;
   SimonBoard.prototype.onClick = onClick;
