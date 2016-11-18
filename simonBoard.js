@@ -17,7 +17,7 @@ var SimonBoard = function (spec){
   this.centerX = spec.centerX || this.width/2;
   this.centerY = spec.centerY || this.height/2;
 
-}
+};
 
 
 
@@ -28,7 +28,7 @@ var SimonBoard = function (spec){
 * and data to the SimonBoard object prototype.
 *
 *******************************************/
-var addFieldsToSimonBoardPrototype = function() {
+(function() {
 
   // colors for drawing the board
   var onColors = ["#FF0000", "#00FF00", "#3344FF", "#FFA500"];
@@ -186,4 +186,4 @@ var addFieldsToSimonBoardPrototype = function() {
   SimonBoard.prototype.onClick = onClick;
   SimonBoard.prototype.onColors = onColors;
   SimonBoard.prototype.offColors = offColors;
-}();
+})();
